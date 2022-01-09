@@ -1,0 +1,24 @@
+# permissions for end users to edit websitedeployments.
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: websitedeployment-editor-role
+rules:
+- apiGroups:
+  - batch.freecross.com
+  resources:
+  - websitedeployments
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - batch.freecross.com
+  resources:
+  - websitedeployments/status
+  verbs:
+  - get

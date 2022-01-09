@@ -1,0 +1,6 @@
+apiVersion: batch.freecross.com/v1
+kind: WebsiteDeployment
+metadata:
+  name: websitedeployment-sample
+spec:
+  # TODO(user): Add fields here

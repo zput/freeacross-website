@@ -1,0 +1,20 @@
+# permissions for end users to view websitedeployments.
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: websitedeployment-viewer-role
+rules:
+- apiGroups:
+  - batch.freecross.com
+  resources:
+  - websitedeployments
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
+  - batch.freecross.com
+  resources:
+  - websitedeployments/status
+  verbs:
+  - get
