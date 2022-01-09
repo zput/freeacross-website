@@ -1,0 +1,6 @@
+domain: freecross.com
+layout:
+- go.kubebuilder.io/v3
+projectName: freeacross-website
+repo: github.com/freeacross/freeacross-website
+version: "3"
