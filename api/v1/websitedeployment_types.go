@@ -17,7 +17,6 @@ limitations under the License.
 package v1
 
 import (
-	appsv1 "k8s.io/api/apps/v1"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
@@ -30,29 +29,86 @@ type WebsiteDeploymentSpec struct {
 	// INSERT ADDITIONAL SPEC FIELDS - desired state of cluster
 	// Important: Run "make" to regenerate code after modifying this file
 
-	// +kubebuilder:validation:Required
-	DeploymentTemplate *DeploymentTemplate `json:"deploymentTemplate,omitempty"`
+	DeployTemplateConfig  `json:"deploy_template_config"`
+	ServiceTemplateConfig `json:"service_template_config"`
+}
 
+type DeployTemplateConfig struct {
+	Containers []Container `json:"containers"`
+
+	// List of volumes that can be mounted by containers belonging to the pod.
+	// More info: https://kubernetes.io/docs/concepts/storage/volumes
+	// +optional
+	// +patchMergeKey=name
+	// +patchStrategy=merge,retainKeys
+	Volumes []corev1.Volume `json:"volumes,omitempty" patchStrategy:"merge,retainKeys" patchMergeKey:"name" protobuf:"bytes,1,rep,name=volumes"`
+}
+
+type ServiceTemplateConfig struct {
+	Type string `json:"type"` // NodePort
+	// +optional
+	Ports []Port `json:"ports,omitempty"`
+}
+
+type Container struct {
+	// Docker image name.
 	// +kubebuilder:validation:Required
-	ServiceTemplate *ServiceTemplate `json:"serviceTemplate,omitempty"`
+	Image string `json:"image,omitempty"`
+	// 容器名称
+	Name string `json:"name"`
+
+	// +optional
+	Ports []Port `json:"ports,omitempty"`
+
+	// Pod volumes to mount into the container's filesystem.
+	// Cannot be updated.
+	// +optional
+	// +patchMergeKey=mountPath
+	// +patchStrategy=merge
+	VolumeMounts []corev1.VolumeMount `json:"volumeMounts,omitempty" patchStrategy:"merge" patchMergeKey:"mountPath" protobuf:"bytes,9,rep,name=volumeMounts"`
+
+	// List of environment variables to set in the Sandbox.
+	// Cannot be updated.
+	// +optional
+	Env []corev1.EnvVar `json:"env,omitempty"`
+}
+
+// NetworkProtocol define network protocols supported of the Sandbox.
+type NetworkProtocol string
+
+const (
+	// ProtocolHTTP is the HTTP protocol.
+	ProtocolHTTP NetworkProtocol = "HTTP"
+	// ProtocolTCP is the TCP protocol.
+	ProtocolTCP NetworkProtocol = "TCP"
+
+	ProtocolHELIOS NetworkProtocol = "HELIOS"
+)
+
+// SandboxNetWork contain information on sandbox network.
+type Port struct {
+	// +optional
+	Port int32 `json:"port,omitempty"`
+	// +optional
+	Protocol NetworkProtocol `json:"protocol,omitempty"`
 }
 
 // DeploymentTemplate Deployment 模板
-type DeploymentTemplate struct {
-	metav1.ObjectMeta `json:"metadata,omitempty"`
-
-	// Deployment spec template
-	// +kubebuilder:validation:Required
-	Spec appsv1.DeploymentSpec `json:"spec,omitempty"`
-}
-
-// ServiceTemplate Service 模板
-type ServiceTemplate struct {
-	metav1.ObjectMeta `json:"metadata,omitempty"`
-
-	// +kubebuilder:validation:Required
-	Spec corev1.ServiceSpec `json:"spec,omitempty"`
-}
+//type DeploymentTemplate struct {
+//	metav1.ObjectMeta `json:"metadata,omitempty"`
+//
+//	// Deployment spec template
+//	// +kubebuilder:validation:Required
+//	Spec appsv1.DeploymentSpec `json:"spec,omitempty"`
+//}
+//
+//// ServiceTemplate Service 模板
+//type ServiceTemplate struct {
+//	metav1.ObjectMeta `json:"metadata,omitempty"`
+//
+//	// +kubebuilder:validation:Required
+//	Spec corev1.ServiceSpec `json:"spec,omitempty"`
+//}
 
 // WebsiteDeploymentStatus defines the observed state of WebsiteDeployment
 type WebsiteDeploymentStatus struct {
