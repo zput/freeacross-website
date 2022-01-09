@@ -29,6 +29,7 @@ import (
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/log"
+	"strings"
 	"time"
 
 	batchv1 "github.com/freeacross/freeacross-website/api/v1"
@@ -162,16 +163,23 @@ func newPodsForCR(wb *batchv1.Website, crs *batchv1.WebsiteDeployment) *corev1.P
 				ContainerPort: e.Port,
 				Protocol:      corev1.Protocol(e.Protocol),
 			})
-
+			var (
+				tmpEnv []corev1.EnvVar
+			)
+			for _, e := range cr.Env {
+				e.Value = strings.Replace(e.Value, "[GIT-REPO]", wb.Spec.GitRepo, -1)
+				tmpEnv = append(tmpEnv, e)
+			}
 			containers = append(containers, corev1.Container{
 				Name:         cr.Name,
 				Image:        cr.Image,
 				Ports:        ports,
 				VolumeMounts: cr.VolumeMounts,
-				Env:          cr.Env,
+				Env:          tmpEnv,
 			})
 		}
 	}
+
 	return &corev1.Pod{
 		ObjectMeta: metav1.ObjectMeta{
 			GenerateName: name + "-pod",
