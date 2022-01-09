@@ -4,3 +4,4 @@ metadata:
   name: website-sample
 spec:
   # TODO(user): Add fields here
+  gitRepo: https://github.com/luksa/kubia-website-example.git
