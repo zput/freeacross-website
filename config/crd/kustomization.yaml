@@ -3,7 +3,6 @@
 # It should be run by config/default
 resources:
 - bases/batch.freecross.com_websites.yaml
-- bases/batch.freecross.com_website-deployments.yaml
 - bases/batch.freecross.com_websitedeployments.yaml
 #+kubebuilder:scaffold:crdkustomizeresource
 
